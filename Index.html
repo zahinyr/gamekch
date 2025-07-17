@@ -45,8 +45,7 @@
   <div id="container">Sedang memuatkan data...</div>
 
   <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDBQj35KovBF6Gsg0zPIEF_0MvoUzkCAjR9TQKhjYJeGRDPeU2myCoCSM653Cxr6fauSmDigPHvtHW/pubhtml?gid=700628596&single=true'; // ganti dengan link anda
-
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDBQj35KovBF6Gsg0zPIEF_0MvoUzkCAjR9TQKhjYJeGRDPeU2myCoCSM653Cxr6fauSmDigPHvtHW/pub?output=csv'; 
     async function fetchCSV() {
       const res = await fetch(CSV_URL);
       const text = await res.text();
