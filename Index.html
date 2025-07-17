@@ -17,6 +17,10 @@
       margin-bottom: 15px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       font-size: 15px;
+      transition: background-color 0.3s ease;
+    }
+    .card.biru-menang {
+      background-color: #d0e7ff !important;
     }
     .match-line {
       font-weight: bold;
@@ -27,6 +31,27 @@
       text-align: center;
       color: #555;
       font-size: 13px;
+      margin-bottom: 5px;
+    }
+    .nama {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .biru {
+      color: blue;
+      font-weight: bold;
+    }
+    .merah {
+      color: red;
+      font-weight: bold;
+    }
+    .markah {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
     }
     select {
       padding: 8px;
@@ -45,7 +70,8 @@
   <div id="container">Sedang memuatkan data...</div>
 
   <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDBQj35KovBF6Gsg0zPIEF_0MvoUzkCAjR9TQKhjYJeGRDPeU2myCoCSM653Cxr6fauSmDigPHvtHW/pub?gid=700628596&single=true&output=csv'; 
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDBQj35KovBF6Gsg0zPIEF_0MvoUzkCAjR9TQKhjYJeGRDPeU2myCoCSM653Cxr6fauSmDigPHvtHW/pub?gid=700628596&single=true&output=csv';
+
     async function fetchCSV() {
       const res = await fetch(CSV_URL);
       const text = await res.text();
@@ -63,14 +89,29 @@
     }
 
     function createCard(row) {
-      const [no, namaA, sekolahA, , namaB, sekolahB, tarikh, masa, gambar, kategori] = row;
-      const imgHTML = gambar && gambar.startsWith("http") ? `<img src="${convertDriveLink(gambar)}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : "";
+      const [no, namaA, sekolahA, , namaB, sekolahB, tarikh, masa, gambar, kategori, markahBiruRaw, markahMerahRaw] = row;
+
+      const markahBiru = parseInt(markahBiruRaw || "0");
+      const markahMerah = parseInt(markahMerahRaw || "0");
+
+      const imgHTML = gambar && gambar.startsWith("http") ? `<img src="${convertDriveLink(gambar)}" width="100" style="border-radius:8px; display:block; margin:5px auto;">` : "";
+
+      const cardClass = markahBiru > markahMerah ? "card biru-menang" : "card";
+
       return `
-        <div class="card" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
+        <div class="${cardClass}" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
           <div class="match-line">
-            PERLAWANAN ${no}: (${namaA}) ${sekolahA} vs (${namaB}) ${sekolahB}
-            ${imgHTML}
+            PERLAWANAN ${no}
           </div>
+          <div class="nama">
+            <div class="biru">(${namaA}) ${sekolahA}</div>
+            <div class="merah">(${namaB}) ${sekolahB}</div>
+          </div>
+          <div class="markah">
+            <div style="color:blue">Markah: ${markahBiru}</div>
+            <div style="color:red">Markah: ${markahMerah}</div>
+          </div>
+          ${imgHTML}
           <div class="details">
             📅 ${tarikh} ⏰ ${masa} &nbsp; | &nbsp; 🏷️ ${kategori}
           </div>
