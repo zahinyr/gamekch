@@ -1,84 +1,121 @@
 <!DOCTYPE html>
 <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 20px;
-          background: #f7f7f7;
-        }
-        .card {
-          background: white;
-          border-radius: 10px;
-          padding: 15px;
-          margin-bottom: 15px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-          font-size: 15px;
-        }
-        .match-line {
-          font-weight: bold;
-          text-align: center;
-          margin-bottom: 8px;
-        }
-        .details {
-          text-align: center;
-          color: #555;
-          font-size: 13px;
-        }
-        select {
-          padding: 8px;
-          margin-bottom: 20px;
-          font-size: 14px;
-        }
-      </style>
-    </head>
-    <body>
-      <h2>Susunan Perlawanan</h2>
-      <label for="filterSekolah"><strong>Pilih Sekolah:</strong></label>
-      <select id="filterSekolah" onchange="filterData()">
-        <option value="">-- Semua Sekolah --</option>
-        ${sekolahOptions}
-      </select>
+<head>
+  <meta charset="UTF-8">
+  <title>Susunan Perlawanan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 15px;
+    }
+    .match-line {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .details {
+      text-align: center;
+      color: #555;
+      font-size: 13px;
+    }
+    select {
+      padding: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Susunan Perlawanan</h2>
+  <label for="filterSekolah"><strong>Pilih Sekolah:</strong></label>
+  <select id="filterSekolah" onchange="filterData()">
+    <option value="">-- Semua Sekolah --</option>
+  </select>
 
-      <div id="container">
-  `;
+  <div id="container">Sedang memuatkan data...</div>
 
-  // Tambah kad perlawanan
-  data.forEach(row => {
-    let sekolahA = row[2];
-    let sekolahB = row[5];
-    let matchCard = `
-      <div class="card" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
-        <div class="match-line">
-          PERLAWANAN ${row[0]}: (${row[1]}) ${row[2]} vs (${row[4]}) ${row[5]} ${row[8] && row[8].toString().startsWith("http") ? `<img src="${row[8]}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : ""}
+  <script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-XXXXX/pub?gid=XXXXX&single=true&output=csv';
 
+    async function fetchCSV() {
+      const res = await fetch(CSV_URL);
+      const text = await res.text();
+      const rows = text.trim().split('\n').map(line => line.split(','));
+      return rows;
+    }
 
-        </div>
-        <div class="details">
-          📅 ${row[6]} ⏰ ${row[7]} &nbsp; | &nbsp; 🏷️ ${row[9]} &nbsp; | &nbsp; ${row[9]}
-        </div>
-      </div>
-    `;
-    html += matchCard;
-  });
-
-  // Tambah skrip untuk filter
-  html += `
-      </div>
-      <script>
-        function filterData() {
-          const selected = document.getElementById("filterSekolah").value.trim().toLowerCase();
-          const cards = document.querySelectorAll(".card");
-
-          cards.forEach(card => {
-            const sekolahA = (card.getAttribute("data-sekolah-a") || "").toLowerCase();
-            const sekolahB = (card.getAttribute("data-sekolah-b") || "").toLowerCase();
-            const match = selected === "" || sekolahA === selected || sekolahB === selected;
-            card.style.display = match ? "block" : "none";
-          });
+    function convertDriveLink(url) {
+      if (url.includes("drive.google.com/file/d/")) {
+        const match = url.match(/\/d\/(.*?)\//);
+        if (match && match[1]) {
+          return `https://drive.google.com/uc?export=view&id=${match[1]}`;
         }
-      </script>
-    </body>
-  </html>
+      }
+      return url;
+    }
+
+    function createCard(row) {
+      const [no, namaA, sekolahA, , namaB, sekolahB, tarikh, masa, gambar, kategori] = row;
+      const imgHTML = (gambar && gambar.startsWith("http")) ? `<img src="${convertDriveLink(gambar)}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : "";
+
+      return `
+        <div class="card" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
+          <div class="match-line">
+            PERLAWANAN ${no}: (${namaA}) ${sekolahA} vs (${namaB}) ${sekolahB} ${imgHTML}
+          </div>
+          <div class="details">
+            📅 ${tarikh} ⏰ ${masa} &nbsp; | &nbsp; 🏷️ ${kategori}
+          </div>
+        </div>`;
+    }
+
+    function filterData() {
+      const selected = document.getElementById("filterSekolah").value.toLowerCase();
+      const cards = document.querySelectorAll(".card");
+
+      cards.forEach(card => {
+        const sekolahA = card.getAttribute("data-sekolah-a").toLowerCase();
+        const sekolahB = card.getAttribute("data-sekolah-b").toLowerCase();
+        card.style.display = selected === "" || sekolahA === selected || sekolahB === selected ? "block" : "none";
+      });
+    }
+
+    function populatePage(data) {
+      const container = document.getElementById("container");
+      const select = document.getElementById("filterSekolah");
+
+      container.innerHTML = "";
+      const sekolahSet = new Set();
+
+      data.forEach(row => {
+        sekolahSet.add(row[2]);
+        sekolahSet.add(row[5]);
+        container.innerHTML += createCard(row);
+      });
+
+      [...sekolahSet].sort().forEach(nama => {
+        const opt = document.createElement("option");
+        opt.value = nama;
+        opt.textContent = nama;
+        select.appendChild(opt);
+      });
+    }
+
+    fetchCSV().then(rows => {
+      const data = rows.slice(1); // skip header
+      populatePage(data);
+    });
+  </script>
+</body>
+</html>
