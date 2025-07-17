@@ -151,9 +151,18 @@
     }
 
     fetchCSV().then(rows => {
-      const data = rows.slice(1); // skip header
-      populatePage(data);
-    });
+  const data = rows.slice(1); // skip header
+
+  // 👉 Sort ikut No Perlawanan (kolum pertama)
+  data.sort((a, b) => {
+    const noA = parseInt(a[0], 10);
+    const noB = parseInt(b[0], 10);
+    return noA - noB;
+  });
+
+  populatePage(data);
+});
+
   </script>
 </body>
 </html>
