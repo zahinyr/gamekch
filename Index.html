@@ -1,39 +1,84 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Carta DAL</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      background-color: #f9f9f9;
-    }
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 20px;
+          background: #f7f7f7;
+        }
+        .card {
+          background: white;
+          border-radius: 10px;
+          padding: 15px;
+          margin-bottom: 15px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+          font-size: 15px;
+        }
+        .match-line {
+          font-weight: bold;
+          text-align: center;
+          margin-bottom: 8px;
+        }
+        .details {
+          text-align: center;
+          color: #555;
+          font-size: 13px;
+        }
+        select {
+          padding: 8px;
+          margin-bottom: 20px;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <h2>Susunan Perlawanan</h2>
+      <label for="filterSekolah"><strong>Pilih Sekolah:</strong></label>
+      <select id="filterSekolah" onchange="filterData()">
+        <option value="">-- Semua Sekolah --</option>
+        ${sekolahOptions}
+      </select>
 
-    .scaled-container {
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
+      <div id="container">
+  `;
 
-    iframe {
-      width: 1200px;
-      height: 900px;
-      transform: scale(0.6); /* Ubah scale ikut kesesuaian */
-      transform-origin: top left;
-      border: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="scaled-container">
-    <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQDBQj35KovBF6Gsg0zPIEF_0MvoUzkCAjR9TQKhjYJeGRDPeU2myCoCSM653Cxr6fauSmDigPHvtHW/pubhtml?gid=420406689&single=true&widget=true&headers=false"></iframe>
-  </div>
-</body>
-</html>
+  // Tambah kad perlawanan
+  data.forEach(row => {
+    let sekolahA = row[2];
+    let sekolahB = row[5];
+    let matchCard = `
+      <div class="card" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
+        <div class="match-line">
+          PERLAWANAN ${row[0]}: (${row[1]}) ${row[2]} vs (${row[4]}) ${row[5]} ${row[8] && row[8].toString().startsWith("http") ? `<img src="${row[8]}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : ""}
+
+
+        </div>
+        <div class="details">
+          📅 ${row[6]} ⏰ ${row[7]} &nbsp; | &nbsp; 🏷️ ${row[9]} &nbsp; | &nbsp; ${row[9]}
+        </div>
+      </div>
+    `;
+    html += matchCard;
+  });
+
+  // Tambah skrip untuk filter
+  html += `
+      </div>
+      <script>
+        function filterData() {
+          const selected = document.getElementById("filterSekolah").value.trim().toLowerCase();
+          const cards = document.querySelectorAll(".card");
+
+          cards.forEach(card => {
+            const sekolahA = (card.getAttribute("data-sekolah-a") || "").toLowerCase();
+            const sekolahB = (card.getAttribute("data-sekolah-b") || "").toLowerCase();
+            const match = selected === "" || sekolahA === selected || sekolahB === selected;
+            card.style.display = match ? "block" : "none";
+          });
+        }
+      </script>
+    </body>
+  </html>
