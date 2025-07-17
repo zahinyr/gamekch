@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
   <title>Susunan Perlawanan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f7f7f7;
       margin: 0;
       padding: 20px;
+      background: #f7f7f7;
     }
     .card {
       background: white;
@@ -31,8 +30,8 @@
     }
     select {
       padding: 8px;
-      font-size: 14px;
       margin-bottom: 20px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -46,13 +45,12 @@
   <div id="container">Sedang memuatkan data...</div>
 
   <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-XXXXX/pub?gid=XXXXX&single=true&output=csv';
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?gid=XXXXX&single=true&output=csv'; // ganti dengan link anda
 
     async function fetchCSV() {
       const res = await fetch(CSV_URL);
       const text = await res.text();
-      const rows = text.trim().split('\n').map(line => line.split(','));
-      return rows;
+      return text.trim().split('\n').map(row => row.split(','));
     }
 
     function convertDriveLink(url) {
@@ -67,12 +65,12 @@
 
     function createCard(row) {
       const [no, namaA, sekolahA, , namaB, sekolahB, tarikh, masa, gambar, kategori] = row;
-      const imgHTML = (gambar && gambar.startsWith("http")) ? `<img src="${convertDriveLink(gambar)}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : "";
-
+      const imgHTML = gambar && gambar.startsWith("http") ? `<img src="${convertDriveLink(gambar)}" width="100" style="border-radius:8px; display:block; margin:0 auto;">` : "";
       return `
         <div class="card" data-sekolah-a="${sekolahA}" data-sekolah-b="${sekolahB}">
           <div class="match-line">
-            PERLAWANAN ${no}: (${namaA}) ${sekolahA} vs (${namaB}) ${sekolahB} ${imgHTML}
+            PERLAWANAN ${no}: (${namaA}) ${sekolahA} vs (${namaB}) ${sekolahB}
+            ${imgHTML}
           </div>
           <div class="details">
             📅 ${tarikh} ⏰ ${masa} &nbsp; | &nbsp; 🏷️ ${kategori}
